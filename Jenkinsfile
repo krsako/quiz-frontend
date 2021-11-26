@@ -29,6 +29,7 @@ pipeline {
     }
     stage('Deploy image to AKS-Test') {
       steps{
+        sh "az aks install-cli"
         sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID}"
       }
     }
