@@ -16,7 +16,7 @@ pipeline {
     }
     stage('Deploy Image') {
       steps{
-        withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+        withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub_PSW')]) {
             sh "docker push ${imagename}:${BUILD_ID}"
         }
       }
@@ -25,7 +25,6 @@ pipeline {
       steps{
         sh "docker rmi $imagename:${BUILD_ID}"
          sh "docker rmi $imagename:latest"
-
       }
     }
   }
