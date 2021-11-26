@@ -1,8 +1,6 @@
 pipeline {
   environment {
     imagename = "kristosako/angular-quiz"
-    registryCredential = 'dockerhub'
-    dockerImage = ''
   }
   agent any
   stages {
@@ -13,25 +11,19 @@ pipeline {
     }
     stage('Building image') {
       steps{
-        script {
-          dockerImage = docker.build imagename
-        }
+        sh "docker build -t ${imagename}:${BUILD_ID} ."
       }
     }
     stage('Deploy Image') {
       steps{
-        script {
-          docker.withRegistry( '', registryCredential ) {
-            dockerImage.push("$BUILD_NUMBER")
-             dockerImage.push('latest')
-
-          }
+        withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+            sh "docker push ${imagename}:${BUILD_ID}"
         }
       }
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi $imagename:$BUILD_NUMBER"
+        sh "docker rmi $imagename:${BUILD_ID}"
          sh "docker rmi $imagename:latest"
 
       }
