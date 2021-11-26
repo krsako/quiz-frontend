@@ -16,9 +16,10 @@ pipeline {
     }
     stage('Deploy Image') {
       steps{
-        withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub_PSW')]) {
-            sh "docker push ${imagename}:${BUILD_ID}"
+        withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhubpwd')]) {
+            sh "docker login -u kristosako -p ${dockerhubpwd}"
         }
+        sh "docker push ${imagename}:${BUILD_ID}"
       }
     }
     stage('Remove Unused docker image') {
