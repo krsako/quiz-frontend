@@ -1,14 +1,14 @@
 pipeline {
   environment {
     imagename = "kristosako/angular-quiz"
-    registryCredential = 'dockerhub-cred'
+    registryCredential = 'dockerhub'
     dockerImage = ''
   }
   agent any
   stages {
     stage('Cloning Git') {
       steps {
-        git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'main', credentialsId: 'git-jenkins'])
+        git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'main', credentialsId: 'github'])
       }
     }
     stage('Building image') {
@@ -22,14 +22,13 @@ pipeline {
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push("${env.BUILD_ID}")
              dockerImage.push('latest')
-
           }
         }
       }
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi $imagename:${env.BUILD_ID}"
+        sh "docker rmi $imagename:$BUILD_NUMBER"
          sh "docker rmi $imagename:latest"
 
       }
