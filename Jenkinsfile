@@ -1,39 +1,41 @@
-pipeline{
+pipeline {
+  environment {
+    imagename = "kristosako/angular-quiz"
+    registryCredential = 'dockerhub-cred'
+    dockerImage = ''
+  }
+  agent any
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'master', credentialsId: 'git-jenkins'])
 
-	agent any
+      }
+    }
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build imagename
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push("$BUILD_NUMBER")
+             dockerImage.push('latest')
 
-	environment {
-		DOCKERHUB_CREDENTIALS=credentials('dockerhub-cred')
-	}
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $imagename:$BUILD_NUMBER"
+         sh "docker rmi $imagename:latest"
 
-	stages {
-
-		stage('Build') {
-
-			steps {
-				sh 'docker build -t kristosako/angular-quiz:latest .'
-			}
-		}
-
-		stage('Login') {
-
-			steps {
-				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
-
-		stage('Push') {
-
-			steps {
-				sh 'docker push kristosako/angular-quiz:latest'
-			}
-		}
-	}
-
-	post {
-		always {
-			sh 'docker logout'
-		}
-	}
-
+      }
+    }
+  }
 }
