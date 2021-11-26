@@ -13,16 +13,14 @@ pipeline {
     }
     stage('Building image') {
       steps{
-        script {
-          dockerImage = docker.build imagename
-        }
+        sh "docker build -t kristosako/angular-quiz:${env.BUILD_ID} ."
       }
     }
     stage('Deploy Image') {
       steps{
         script {
           docker.withRegistry( '', registryCredential ) {
-            dockerImage.push("$BUILD_NUMBER")
+            dockerImage.push("${env.BUILD_ID}")
              dockerImage.push('latest')
 
           }
@@ -31,7 +29,7 @@ pipeline {
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi $imagename:$BUILD_NUMBER"
+        sh "docker rmi $imagename:${env.BUILD_ID}"
          sh "docker rmi $imagename:latest"
 
       }
