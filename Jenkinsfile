@@ -29,7 +29,7 @@ pipeline {
     }
     stage('Deploy image to AKS-Test') {
       steps{
-        sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID} --namespace=quiz"
+        sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID}"
       }
     }
   }
