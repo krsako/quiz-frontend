@@ -13,15 +13,18 @@ pipeline {
     }
     stage('Building image') {
       steps{
-        sh "docker build -t kristosako/angular-quiz:${env.BUILD_ID} ."
+        script {
+          dockerImage = docker.build imagename
+        }
       }
     }
     stage('Deploy Image') {
       steps{
         script {
           docker.withRegistry( '', registryCredential ) {
-            dockerImage.push("${env.BUILD_ID}")
+            dockerImage.push("$BUILD_NUMBER")
              dockerImage.push('latest')
+
           }
         }
       }
