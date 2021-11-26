@@ -9,13 +9,12 @@ pipeline {
     stage('Cloning Git') {
       steps {
         git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'main', credentialsId: 'git-jenkins'])
-
       }
     }
     stage('Building image') {
       steps{
         script {
-          dockerImage = docker.build imagename
+          dockerImage = docker.build(imagename)
         }
       }
     }
