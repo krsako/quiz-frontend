@@ -1,41 +1,34 @@
 pipeline {
-  environment {
-    imagename = "kristosako/angular-quiz"
-    registryCredential = 'dockerhub-cred'
-    dockerImage = ''
-  }
-  agent any
-  stages {
-    stage('Cloning Git') {
-      steps {
-        git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'master', credentialsId: 'git-jenkins'])
+   agent any
 
-      }
-    }
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build imagename
-        }
-      }
-    }
-    stage('Deploy Image') {
-      steps{
-        script {
-          docker.withRegistry( '', registryCredential ) {
-            dockerImage.push("$BUILD_NUMBER")
-             dockerImage.push('latest')
+   environment {
+     SERVICE_NAME = "quiz-frontend"
+     REPOSITORY_TAG="${DOCKERHUB_USR}/${SERVICE_NAME}:${BUILD_ID}"
+   }
 
+   stages {
+      stage('Preparation') {
+         steps {
+            cleanWs()
+            git credentialsId: 'git-jenkins', url: "https://github.com/krsako/${SERVICE_NAME}"
+         }
+      }
+      stage('Build') {
+         steps {
+            sh 'echo No build required for Webapp.'
+         }
+      }
+
+      stage('Build and Push Image') {
+         steps {
+           sh 'docker image build -t ${REPOSITORY_TAG} .'
+         }
+      }
+
+      stage('Deploy to Cluster') {
+          steps {
+            sh 'envsubst < ${WORKSPACE}/deploy.yaml -n quiz | kubectl apply -f -'
           }
-        }
       }
-    }
-    stage('Remove Unused docker image') {
-      steps{
-        sh "docker rmi $imagename:$BUILD_NUMBER"
-         sh "docker rmi $imagename:latest"
-
-      }
-    }
-  }
+   }
 }
