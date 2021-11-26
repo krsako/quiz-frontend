@@ -9,12 +9,12 @@ pipeline {
         git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'main', credentialsId: 'github'])
       }
     }
-    stage('Building Image') {
+    stage('Build Image') {
       steps{
         sh "docker build -t ${imagename}:${BUILD_ID} ."
       }
     }
-    stage('Deploy Image') {
+    stage('Push Image') {
       steps{
         withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
             sh "docker login -u kristosako -p ${PASSWORD}"
@@ -25,7 +25,11 @@ pipeline {
     stage('Remove unused docker image') {
       steps{
         sh "docker rmi ${imagename}:${BUILD_ID}"
-         sh "docker rmi ${imagename}:latest"
+      }
+    }
+    stage('Deploy image to AKS-Test') {
+      steps{
+        sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID} --namespace=quiz"
       }
     }
   }
