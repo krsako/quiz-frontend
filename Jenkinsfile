@@ -9,7 +9,7 @@ pipeline {
         git([url: 'https://github.com/krsako/quiz-frontend.git', branch: 'main', credentialsId: 'github'])
       }
     }
-    stage('Building image') {
+    stage('Building Image') {
       steps{
         sh "docker build -t ${imagename}:${BUILD_ID} ."
       }
@@ -22,10 +22,10 @@ pipeline {
         }
       }
     }
-    stage('Remove Unused docker image') {
+    stage('Remove unused docker image') {
       steps{
-        sh "docker rmi $imagename:${BUILD_ID}"
-         sh "docker rmi $imagename:latest"
+        sh "docker rmi ${imagename}:${BUILD_ID}"
+         sh "docker rmi ${imagename}:latest"
       }
     }
   }
