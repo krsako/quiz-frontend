@@ -37,8 +37,8 @@ pipeline {
     stage('Deploy image to AKS-Test') {
       steps{
           withCredentials([usernamePassword(credentialsId: 'azure', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh "az login -u ${USERNAME}" -p ${PASSWORD}"
-            sh 'az account set -s ${AZURE_SUBSCRIPTION_ID}'
+            sh "az login -u ${USERNAME} -p ${PASSWORD}"
+            sh "az account set -s ${AZURE_SUBSCRIPTION_ID}"
             sh "az aks get-credentials --resource-group rg-quiz-ks --name tf-aks-quiz-test"
             sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID}"
         }
