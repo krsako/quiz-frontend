@@ -36,11 +36,11 @@ pipeline {
     // }
     stage('Deploy image to AKS-Test') {
       steps{
-        withCredentials([azureServicePrincipal('azure')]) {
-          stage('Prepare Environment') {
-            sh 'az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} -t ${AZURE_TENANT_ID}'
+          withCredentials([usernamePassword(credentialsId: 'azure', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh "az login -u ${USERNAME}" -p ${PASSWORD}"
             sh 'az account set -s ${AZURE_SUBSCRIPTION_ID}'
-            acrSettings = new JsonSlurper().parseText(sh(script: "az acs show -o json -n my-acr", returnStdout: true))
+            sh "az aks get-credentials --resource-group rg-quiz-ks --name tf-aks-quiz-test"
+            sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID}"
         }
       }
     }
