@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quiz-client
+  template:
+    metadata:
+      labels:
+        app: quiz-client
+    spec:
+      containers:
+      - name: quiz-client
+        image: kristosako/angular-quiz:01
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - name: http
+          containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quiz-client
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: quiz-client
