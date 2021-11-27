@@ -27,10 +27,21 @@ pipeline {
         sh "docker rmi ${imagename}:${BUILD_ID}"
       }
     }
+    // stage('Deploy image to AKS-Test') {
+    //   steps{
+    //     sh "az aks get-credentials --resource-group rg-quiz-ks --name tf-aks-quiz-test"
+    //     sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID} --namespace=quiz"
+    //   }
+    // }
     stage('Deploy image to AKS-Test') {
       steps{
-        sh "az aks install-cli"
-        sh "kubectl set image deployment/quiz-client quiz-client=${imagename}:${BUILD_ID}"
+        script {
+          kubernetesDeploy(
+            configs: "quiz-client.yml",
+            kubeconfigId: "aks",
+            enableConfigSubstitution: true
+            )
+        }
       }
     }
   }
